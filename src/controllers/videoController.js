@@ -4,7 +4,7 @@ import {
     createVideo,
     updateVideo,
     deleteVideo,
-} from '../services/VideoService.js';
+} from '../services/videoService.js';
 
 export async function getAllVideosHandler(req, res) {
     /*const {

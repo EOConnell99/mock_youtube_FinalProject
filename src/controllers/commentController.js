@@ -4,7 +4,7 @@ import {
     createComment,
     updateComment,
     deleteComment,
-} from '../services/CommentService.js';
+} from '../services/commentService.js';
 
 export async function getAllCommentsHandler(req, res) {
     /*const {

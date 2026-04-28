@@ -1,6 +1,6 @@
 import { getChannelById } from '../services/channelService.js';
-import { getCommentById } from '../services/CommentService.js';
-import { getVideoById } from '../services/VideoService.js';
+import { getCommentById } from '../services/commentService.js';
+import { getVideoById } from '../services/videoService.js';
 
 export async function authorizeChannelOwnership(req, res, next) {
     const id = parseInt(req.params.id);
