@@ -7,6 +7,9 @@ info:
 
 servers:
   - url: http://localhost:3001/api
+    description: Local development servers
+  - url: https://mock-youtube-finalproject.onrender.com
+    description: Production Server
 tags:
   - name: Auth
     description: User authentication endpoints
