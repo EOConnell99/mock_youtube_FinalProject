@@ -4,12 +4,12 @@ import {
     createChannel,
     updateChannel,
     deleteChannel,
-} from '../services/ChannelService.js';
+} from '../services/channelService.js';
 
 export async function getAllChannelsHandler(req, res) {
     /*const {
       search = '',
-      sortBy = 'id',
+      sortBy = 'id',S
       order = 'asc',
       offset = 0,
       limit = 5,
