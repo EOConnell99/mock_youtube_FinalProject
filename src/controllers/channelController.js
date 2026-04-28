@@ -1,53 +1,52 @@
-import * as channelService from '../services/channelService.js';
+import {
+    getAllChannels,
+    getChannelById,
+    createChannel,
+    updateChannel,
+    deleteChannel,
+} from '../services/ChannelService.js';
 
-export async function createChannel(req, res, next) {
-    try {
-        const channel = await channelService.createChannel(req.body, req.user.id);
-        res.status(201).json(channel);
-    } catch (err) {
-        next(err);
-    }
+export async function getAllChannelsHandler(req, res) {
+    /*const {
+      search = '',
+      sortBy = 'id',
+      order = 'asc',
+      offset = 0,
+      limit = 5,
+    } = req.query;
+  
+    const options = {
+      search,
+      sortBy,
+      order,
+      offset: parseInt(offset),
+      limit: parseInt(limit),
+    };*/
+    let Channels = await getAllChannels(/*options*/);
+    res.status(200).json(Channels);
 }
 
-export async function getAllChannels(req, res, next) {
-    try {
-        const channels = await channelService.getAllChannels();
-        res.json(channels);
-    } catch (err) {
-        next(err);
-    }
+export async function getChannelByIdHandler(req, res) {
+    const id = parseInt(req.params.id);
+    const Channel = await getChannelById(id);
+    res.status(200).json(Channel);
 }
 
-export async function getChannelById(req, res, next) {
-    try {
-        const channel = await channelService.getChannelById(req.params.id);
-        res.json(channel);
-    } catch (err) {
-        next(err);
-    }
+export async function createChannelHandler(req, res) {
+    const { name, desc } = req.body;
+    const newChannel = await createChannel({ name, desc, user_id: req.user.id });
+    res.status(201).json(newChannel);
 }
 
-export async function updateChannel(req, res, next) {
-    try {
-        const channel = await channelService.updateChannel(
-            req.params.id,
-            req.body,
-            req.user.id
-        );
-        res.json(channel);
-    } catch (err) {
-        next(err);
-    }
+export async function updateChannelHandler(req, res) {
+    const id = parseInt(req.params.id);
+    const { name, desc } = req.body;
+    const updatedChannel = await updateChannel(id, { name, desc });
+    res.status(200).json(updatedChannel);
 }
 
-export async function deleteChannel(req, res, next) {
-    try {
-        const channel = await channelService.deleteChannel(
-            req.params.id,
-            req.user.id
-        );
-        res.json(channel);
-    } catch (err) {
-        next(err);
-    }
+export async function deleteChannelHandler(req, res) {
+    const id = parseInt(req.params.id);
+    await deleteChannel(id);
+    res.status(204).send();
 }

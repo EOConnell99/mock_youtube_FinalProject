@@ -8,10 +8,10 @@ info:
 servers:
   - url: http://localhost:3001/api
 tags:
-  - name: Posts
-    description: Operations related to blog posts
   - name: Auth
     description: User authentication endpoints
+  - name: Channels
+    description: Endpoints related to Channels.
 paths:
   /auth/login:
     post:
@@ -81,6 +81,163 @@ paths:
                 createdAt: "2026-03-04T20:30:00Z"
         "400":
           $ref: "#/components/responses/InvalidUserInput"
+  /channels:
+    get:
+      tags:
+        - Channels
+      summary: Get all channels
+      description: Retrieve a list of all channels.
+      #parameters:
+      #- $ref: "#/components/parameters/SearchParam"
+      #- $ref: "#/components/parameters/SortByParam"
+      #- $ref: "#/components/parameters/OrderParam"
+      #- $ref: "#/components/parameters/OffsetParam"
+      #- $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: A list of channels.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Channel"
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Channels
+      summary: Create a channel.
+      description: Create a new channel for the logged in user.
+      requestBody:
+        description: The channel object to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Channel"
+      responses:
+        "201":
+          description: Channel succesfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+        "400":
+          $ref: "#/components/responses/InvalidPostInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /channels/{id}:
+    get:
+      tags:
+        - Channels
+      summary: Get a channel by id
+      description: Retrieve a single channel by its ID.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: A single channel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Channels
+      summary: Update a channel
+      description: Update the name and/or description of an existing channel.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        description: Fields to update for the channel
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Updated Name"
+                desc:
+                  type: string
+                  example: "Updated content of the post"
+            example:
+              name: "Updated Name"
+              desc: "Updated desc of the channel"
+      responses:
+        "200":
+          description: Channel successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+        "400":
+          description: Bad Request due to invalid ID or invalid channel data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+              example:
+                errors:
+                  - "ID must be a positive integer"
+                  - "Name must be at least 3 characters"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Forbidden - user not allowed to update this post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "You are not allowed to update this post"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Channels
+      summary: Delete a post
+      description: Delete an existing Channel by its ID.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: Channel successfully deleted
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Forbidden - user not allowed to delete this channel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "You are not allowed to delete this channel"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
 components:
   schemas:
@@ -108,6 +265,32 @@ components:
           type: string
           readOnly: true
           example: "2026-03-04T20:30:00Z"
+    Channel:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: "First Channel"
+        desc:
+          type: string
+          example: "This is the description of the first channel"
+        user_id:
+          type: integer
+          readOnly: true
+          example: 1
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: Resource ID
+      schema:
+        type: integer
+        example: 1
   responses:
     NotFound:
       description: Resource not found
@@ -147,7 +330,7 @@ components:
                   type: string
             example:
               errors:
-                - "Title must be at least 3 characters"
+                - "Name must be at least 3 characters"
     Unauthorized:
       description: Client is not authenticated
       content:

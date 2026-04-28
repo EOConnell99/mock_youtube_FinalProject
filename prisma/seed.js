@@ -28,9 +28,25 @@ for (const userData of usersData) {
     users.push(user);
 }
 
+for (const user of users) {
+    await prisma.channel.createMany({
+        data: [
+            {
+                desc: `This is the first channel belonging to ${user.username}.`,
+                name: `${user.username}'s awesome channel!`,
+                user_id: user.id,
+            },
+            {
+                desc: `This is an even better channel belonging to ${user.username}. Shocking, I know`,
+                name: `${user.username}'s even more awesome channel!`,
+                user_id: user.id,
+            },
+        ],
+    });
+}
 
 
 
-console.log("database seeded with 3 test users");
+console.log("database seeded with 3 test users, and 2 channels for each user");
 
 await prisma.$disconnect();

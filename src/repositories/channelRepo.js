@@ -6,6 +6,7 @@ export async function create(channelData) {
 }
 
 
+
 export async function findAll() {
     const channels = await prisma.channel.findMany({
         select: {
@@ -24,7 +25,7 @@ export async function findById(id) {
     return channel
 }
 
-export async function update(id, data) {
+export async function update(id, updatedData) {
     try {
         const updatedChannel = await prisma.channel.update({
             where: { id },
@@ -42,7 +43,7 @@ export async function remove(id) {
         const deletedChannel = await prisma.channel.delete({
             where: { id },
         });
-        return deletedChanel;
+        return deletedChannel;
     } catch (error) {
         if (error.code === 'P2025') return null;
         throw error;
