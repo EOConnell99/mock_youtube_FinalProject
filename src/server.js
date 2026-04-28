@@ -6,6 +6,7 @@ import fs from 'fs';
 import authRoutes from './routes/authRoutes.js';
 import channelRoutes from './routes/channelRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
+import commmentRoutes from './routes/commentRoutes.js'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api/auth', authRoutes);
 app.use('/api/channels', channelRoutes);
 app.use('/api/videos/', videoRoutes);
+app.use('/api/comments/', commmentRoutes);
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;

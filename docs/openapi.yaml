@@ -14,6 +14,8 @@ tags:
     description: Endpoints related to Channels.
   - name: Videos
     description: Endpoints related to Videos.
+  - name: Comments
+    description: Endpoints related to Comments.
 paths:
   /auth/login:
     post:
@@ -265,7 +267,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-
   /videos/{id}:
     get:
       tags:
@@ -361,6 +362,125 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /comments:
+    get:
+      tags:
+        - Comments
+      summary: Get all comments
+      description: Retrieve a list of all comments.
+      responses:
+        "200":
+          description: A list of comments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      summary: Create a comment
+      description: Create a new comment on a video as the logged in user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+      responses:
+        "201":
+          description: Comment successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "400":
+          $ref: "#/components/responses/InvalidPostInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /comments/{id}:
+    get:
+      tags:
+        - Comments
+      summary: Get a comment by id
+      description: Retrieve a single comment by its ID.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: A single comment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      summary: Update a comment
+      description: Update the content of a comment owned by the logged in user.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Updated comment text"
+            example:
+              content: "Updated comment text"
+      responses:
+        "200":
+          description: Comment successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      summary: Delete a comment
+      description: Delete a comment owned by the logged in user or moderated by the
+        video owner.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: Comment successfully deleted
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
   schemas:
     AuthCredentials:
@@ -434,6 +554,42 @@ components:
           type: string
           format: date-time
           example: "2026-04-28T19:15:00.000Z"
+          readOnly: true
+    Comment:
+      type: object
+      required:
+        - id
+        - userId
+        - videoId
+        - content
+      properties:
+        id:
+          type: integer
+          example: 1
+          readOnly: true
+
+        user_id:
+          type: integer
+          example: 2
+          readOnly: true
+
+        video_id:
+          type: integer
+          example: 1
+
+        content:
+          type: string
+          example: "this video is okay i guess"
+
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-28T20:10:00.000Z"
+          readOnly: true
+
+        updatedAt:
+          type: string
+          format: date-time
           readOnly: true
   parameters:
     ResourceId:

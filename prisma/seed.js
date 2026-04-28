@@ -27,7 +27,6 @@ for (const userData of usersData) {
 
     users.push(user);
 }
-console.log(users);
 
 const channels = [];
 for (const user of users) {
@@ -49,7 +48,7 @@ for (const user of users) {
     channels.push(channel2);
 }
 
-console.log(JSON.stringify(channels, null, 2));
+
 
 const videos = [];
 for (const channel of channels) {
@@ -63,7 +62,22 @@ for (const channel of channels) {
     videos.push(video);
 }
 console.log(JSON.stringify(videos, null, 2));
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max) + 1;
+}
+for (const video of videos) {
+    const rating = getRandomInt(100);
+    const comment_poster = getRandomInt(3);
+    await prisma.comment.create({
+        data: {
+            content: `I'd give this video a ${rating} out of 100!`,
+            video_id: video.id,
+            user_id: comment_poster
+        }
 
-console.log("database seeded with 3 test users, 2 channels for each user, and one video for each channel.");
+    })
+}
+
+console.log("database seeded with 3 test users, 2 channels for each user, one video for each channel, and one comment for each video.");
 
 await prisma.$disconnect();
