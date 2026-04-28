@@ -1,0 +1,5 @@
+node_modules
+.env
+/src/generated/prisma
+ass7.zip
+/src/generated/prisma

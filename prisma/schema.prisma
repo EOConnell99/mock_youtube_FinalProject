@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+
+  channels Channel[]
+  comments Comment[]
+}
+
+model Channel {
+  id      Int    @id @default(autoincrement())
+  name    String
+  desc    String
+  user_id Int
+
+  owner  User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  videos Video[]
+}
+
+model Video {
+  id         Int      @id @default(autoincrement())
+  title      String
+  desc       String
+  channel_id Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  channel  Channel   @relation(fields: [channel_id], references: [id], onDelete: Cascade)
+  comments Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  video_id  Int
+  user_id   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  video Video @relation(fields: [video_id], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
