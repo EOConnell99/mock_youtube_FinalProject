@@ -12,6 +12,8 @@ tags:
     description: User authentication endpoints
   - name: Channels
     description: Endpoints related to Channels.
+  - name: Videos
+    description: Endpoints related to Videos.
 paths:
   /auth/login:
     post:
@@ -197,16 +199,7 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
-          description: Forbidden - user not allowed to update this post
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-              example:
-                error: "You are not allowed to update this post"
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
     delete:
@@ -226,19 +219,148 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
-          description: Forbidden - user not allowed to delete this channel
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /videos:
+    get:
+      tags:
+        - Videos
+      summary: Get all videos
+      description: Retrieve a list of all videos.
+      responses:
+        "200":
+          description: A list of videos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Videos
+      summary: Create a video
+      description: Create a new video for a channel owned by the logged in user.
+      requestBody:
+        description: The video object to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Video"
+      responses:
+        "201":
+          description: Video successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "400":
+          $ref: "#/components/responses/InvalidPostInput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /videos/{id}:
+    get:
+      tags:
+        - Videos
+      summary: Get a video by id
+      description: Retrieve a single video by its ID.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "200":
+          description: A single video
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Videos
+      summary: Update a video
+      description: Update the title and/or description of an existing video.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      requestBody:
+        description: Fields to update for the video
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Video Title"
+                desc:
+                  type: string
+                  example: "Updated video description"
+            example:
+              title: "Updated Video Title"
+              desc: "Updated video description"
+      responses:
+        "200":
+          description: Video successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "400":
+          description: Bad Request due to invalid ID or invalid video data
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  error:
-                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: string
               example:
-                error: "You are not allowed to delete this channel"
+                errors:
+                  - "ID must be a positive integer"
+                  - "Title must be at least 3 characters"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
 
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Videos
+      summary: Delete a video
+      description: Delete an existing video by its ID.
+      parameters:
+        - $ref: "#/components/parameters/ResourceId"
+      responses:
+        "204":
+          description: Video successfully deleted
+        "400":
+          $ref: "#/components/responses/InvalidId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
   schemas:
     AuthCredentials:
@@ -282,6 +404,37 @@ components:
           type: integer
           readOnly: true
           example: 1
+    Video:
+      type: object
+      required:
+        - id
+        - title
+        - desc
+        - channelId
+      properties:
+        id:
+          type: integer
+          example: 1
+          readOnly: true
+        title:
+          type: string
+          example: "How to Learn Prisma Fast"
+        desc:
+          type: string
+          example: "A beginner-friendly tutorial covering Prisma basics."
+        channel_id:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-28T18:30:00.000Z"
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-04-28T19:15:00.000Z"
+          readOnly: true
   parameters:
     ResourceId:
       name: id
@@ -357,6 +510,17 @@ components:
               errors:
                 - "Email is required"
                 - "Password is required"
+    Forbidden:
+      description: Forbidden - user not allowed to delete this resource
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+          example:
+            error: "You are not allowed to delete this resource"
   securitySchemes:
     bearerAuth:
       type: http

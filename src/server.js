@@ -5,12 +5,13 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import authRoutes from './routes/authRoutes.js';
 import channelRoutes from './routes/channelRoutes.js';
+import videoRoutes from './routes/videoRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use('/api/channels', channelRoutes);
+
 if (process.env.NODE_ENV !== 'test') app.use(morgan('tiny'));
 
 let specs;
@@ -23,7 +24,8 @@ try {
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api/auth', authRoutes);
-
+app.use('/api/channels', channelRoutes);
+app.use('/api/videos/', videoRoutes);
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
